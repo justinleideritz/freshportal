@@ -21,9 +21,7 @@
         } else {
             $sqlQuery = "INSERT INTO employee (firstname, lastname, email, address, birthdate)
             VALUES ('$firstName', '$lastName', '$email', '$address', '$birthdate')";
-    
             $conn->exec($sqlQuery);
-    
             header("location: index.php");
         }
     }

@@ -80,7 +80,8 @@
         }
 
         .messageon {
-            display: block;
+            display: flex;
+            justify-content: space-between;
         }
 
         .alert {
@@ -107,10 +108,6 @@
 
         .alert button:hover {
             background-color: #666;
-        }
-        #alertBox {
-            display: flex;
-            justify-content: space-between;
         }
     </style>
 </head>
