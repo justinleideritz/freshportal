@@ -18,8 +18,8 @@
         $stmt->bindparam(":address", $address);
         $stmt->bindparam(":birthdate", $birthdate);
         $updateExec = $stmt->execute();
-        header("Location: index.php");
-    } catch (PDOExecption $e) {
+        header("Location: employeetable.php");
+    } catch (PDOException $e) {
         echo $e->getMessage();
     }
 ?>

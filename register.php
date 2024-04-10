@@ -1,76 +1,79 @@
 <?php
+// Start session
 session_start();
 
-// Check if the user is already logged in, if yes then redirect him to welcome page
-if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
-    header("location: employeetable.php");
-    exit;
-}
-
-// Include config file
-require_once "dbcon.php";
+// Include database connection file
+require_once 'dbcon.php';
 
 // Define variables and initialize with empty values
-$username = $password = "";
-$username_err = $password_err = "";
+$username = $password = $confirm_password = "";
+$username_err = $password_err = $confirm_password_err = "";
 
 // Processing form data when form is submitted
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Check if username is empty
+    // Validate username
     if (empty(trim($_POST["username"]))) {
-        $username_err = "Please enter username.";
+        $username_err = "Please enter a username.";
     } else {
-        $username = trim($_POST["username"]);
+        $sql = "SELECT id FROM user WHERE username = :username";
+
+        if ($stmt = $conn->prepare($sql)) {
+            $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
+
+            $param_username = trim($_POST["username"]);
+
+            if ($stmt->execute()) {
+                if ($stmt->rowCount() == 1) {
+                    $username_err = "This username is already taken.";
+                } else {
+                    $username = trim($_POST["username"]);
+                }
+            } else {
+                echo "Oops! Something went wrong. Please try again later.";
+            }
+            unset($stmt);
+        }
     }
 
-    // Check if password is empty
+    // Validate password
     if (empty(trim($_POST["password"]))) {
-        $password_err = "Please enter your password.";
+        $password_err = "Please enter a password.";
+    } elseif (strlen(trim($_POST["password"])) < 6) {
+        $password_err = "Password must have at least 6 characters.";
     } else {
         $password = trim($_POST["password"]);
     }
 
-    // Validate credentials
-    if (empty($username_err) && empty($password_err)) {
-        // Prepare a select statement
-        $sql = "SELECT id, username, password FROM user WHERE username = :username";
+    // Validate confirm password
+    if (empty(trim($_POST["confirm_password"]))) {
+        $confirm_password_err = "Please confirm password.";
+    } else {
+        $confirm_password = trim($_POST["confirm_password"]);
+        if (empty($password_err) && ($password != $confirm_password)) {
+            $confirm_password_err = "Password did not match.";
+        }
+    }
+
+    // Check input errors before inserting into database
+    if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
+
+        // Prepare an insert statement
+        $sql = "INSERT INTO user (username, password) VALUES (:username, :password)";
 
         if ($stmt = $conn->prepare($sql)) {
             // Bind variables to the prepared statement as parameters
             $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
+            $stmt->bindParam(":password", $param_password, PDO::PARAM_STR);
 
             // Set parameters
             $param_username = $username;
+            $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
 
             // Attempt to execute the prepared statement
             if ($stmt->execute()) {
-                // Check if username exists, if yes then verify password
-                if ($stmt->rowCount() == 1) {
-                    if ($row = $stmt->fetch()) {
-                        $id = $row["id"];
-                        $username = $row["username"];
-                        $hashed_password = $row["password"];
-                        if (password_verify($password, $hashed_password)) {
-                            // Password is correct, so start a new session
-                            session_start();
-
-                            // Store data in session variables
-                            $_SESSION["loggedin"] = true;
-                            $_SESSION["id"] = $id;
-                            $_SESSION["username"] = $username;
-
-                            // Redirect user to welcome page
-                            header("location: employeetable.php");
-                        } else {
-                            // Display an error message if password is not valid
-                            $password_err = "The password you entered was not valid.";
-                        }
-                    }
-                } else {
-                    // Display an error message if username doesn't exist
-                    $username_err = "No account found with that username.";
-                }
+                // Redirect to login page
+                header("location: index.php");
             } else {
                 echo "Oops! Something went wrong. Please try again later.";
             }
@@ -90,9 +93,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <head>
     <meta charset="UTF-8">
-    <title>Login</title>
+    <title>Register</title>
     <style>
-        body {
+ body {
             font-family: arial;
             margin: 10px 0px;
             padding: 0px;
@@ -116,8 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         input[type="text"],
         input[type="password"],
-        input[type="submit"],
-        a[href="index.php"] {
+        input[type="submit"] {
             display: inline-block;
             text-decoration: none;
             width: 100%;
@@ -128,16 +130,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             box-sizing: border-box;
         }
 
-        input[type="submit"],
-        a[href="index.php"] {
+        input[type="submit"] {
             background-color: #4b556b;
             color: #fff;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
 
-        input[type="submit"]:hover,
-        a[href="index.php"]:hover {
+        input[type="submit"]:hover {
             background-color: #6b7280;
         }
 
@@ -149,19 +149,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             border-radius: 10px;
             box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
         }
-        .top {
-            display: flex;
-            justify-content: space-evenly;
-            align-items: center;
-            margin-bottom: 50px;
-        }
     </style>
 </head>
 
 <body>
 <div class="top">
         <img src="images.png" alt="">
-        <h1><span style="color: #a0bf39;">Log</span> <span style="color: #4b556b">In</span></h1>
+        <h1><span style="color: #a0bf39;">Make</span> <span style="color: #4b556b">Account</span></h1>
     </div>
     <div class="wrapper">
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
@@ -172,13 +166,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <div>
                 <label>Password</label>
-                <input type="password" name="password">
+                <input type="password" name="password" value="<?php echo $password; ?>">
                 <span><?php echo $password_err; ?></span>
             </div>
             <div>
-                <input type="submit" value="Login">
+                <label>Confirm Password</label>
+                <input type="password" name="confirm_password" value="<?php echo $confirm_password; ?>">
+                <span><?php echo $confirm_password_err; ?></span>
             </div>
-            <p>Don't have an account? <a href="register.php">Sign up now</a>.</p>
+            <div>
+                <input type="submit" value="Submit">
+            </div>
+            <p>Already have an account? <a href="index.php">Login here</a>.</p>
         </form>
     </div>
 </body>
