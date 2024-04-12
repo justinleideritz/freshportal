@@ -94,67 +94,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
-    <style>
- body {
-            font-family: arial;
-            margin: 10px 0px;
-            padding: 0px;
-        }
-
-        .top {
-            display: flex;
-            justify-content: space-evenly;
-            align-items: center;
-            margin-bottom: 50px;
-        }
-
-        h1 {
-            margin: 10px 0;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        input[type="text"],
-        input[type="password"],
-        input[type="submit"] {
-            display: inline-block;
-            text-decoration: none;
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        input[type="submit"] {
-            background-color: #4b556b;
-            color: #fff;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        input[type="submit"]:hover {
-            background-color: #6b7280;
-        }
-
-        form {
-            max-width: 400px;
-            margin: 20px auto;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
-    </style>
+    <link rel="stylesheet" href="./styles/register.css">
 </head>
 
 <body>
 <div class="top">
-        <img src="images.png" alt="">
+        <img src="./images/images-removebg-preview.png" alt="">
         <h1><span style="color: #a0bf39;">Make</span> <span style="color: #4b556b">Account</span></h1>
     </div>
     <div class="wrapper">
