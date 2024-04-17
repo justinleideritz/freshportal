@@ -34,7 +34,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Validate credentials
     if (empty($username_err) && empty($password_err)) {
         // Prepare a select statement
-        $sql = "SELECT id, username, password FROM user WHERE username = :username";
+        $sql = "SELECT USE_ID, USE_Username, USE_Password FROM user WHERE USE_Username = :username";
 
         if ($stmt = $conn->prepare($sql)) {
             // Bind variables to the prepared statement as parameters
@@ -48,9 +48,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Check if username exists, if yes then verify password
                 if ($stmt->rowCount() == 1) {
                     if ($row = $stmt->fetch()) {
-                        $id = $row["id"];
-                        $username = $row["username"];
-                        $hashed_password = $row["password"];
+                        $id = $row["USE_ID"];
+                        $username = $row["USE_Username"];
+                        $hashed_password = $row["USE_Password"];
                         if (password_verify($password, $hashed_password)) {
                             // Password is correct, so start a new session
                             session_start();
@@ -91,11 +91,74 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <link rel="stylesheet" href="./styles/index.css">
+    <style>
+        body {
+            font-family: arial;
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+
+        h1 {
+            margin: 10px 0;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="password"],
+        input[type="submit"],
+        a[href="index.php"] {
+            display: inline-block;
+            text-decoration: none;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"],
+        a[href="index.php"] {
+            background-color: #4b556b;
+            color: #fff;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover,
+        a[href="index.php"]:hover {
+            background-color: #6b7280;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .top {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            margin-bottom: 50px;
+        }
+    </style>
 </head>
 
 <body>
-<div class="top">
+    <div class="top">
         <img src="./images/images-removebg-preview.png" alt="">
         <h1><span style="color: #a0bf39;">Log</span> <span style="color: #4b556b">In</span></h1>
     </div>

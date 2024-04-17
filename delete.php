@@ -3,7 +3,7 @@
 
     $id = $_GET['id'];
 
-    $sql = "DELETE FROM employee WHERE id = :id";
+    $sql = "DELETE FROM employee WHERE EMP_ID = :id";
     $stmt = $conn->prepare($sql);
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
