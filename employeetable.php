@@ -21,12 +21,12 @@ if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
 //Het uur van de tijd wordt in een variabel gegooit om dan in een if else gebruikte te kunnen worden
 $current_hour = date('H');
 //Verschillende berichten worden weergegeven op basis van tijd
-if ($current_hour >= 5 && $current_hour < 12) {
+if ($current_hour > 5 && $current_hour < 12) {
     $greeting = "Good morning";
 } elseif ($current_hour >= 12 && $current_hour < 18) {
-    $greeting = "Good day";
+    $greeting = "Good afternoon";
 } else {
-    $greeting = "Good night";
+    $greeting = "Good evening";
 }
 ?>
 <nav>

@@ -7,7 +7,6 @@ require_once 'dbcon.php';
 $username = $password = $confirm_password = "";
 $username_err = $password_err = $confirm_password_err = "";
 
-// Check of the form method "POST" is
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     //Als de username leeg is dan krijg je een error anders wordt the username opgeslagen in de variabel $username anders word er gekeken of het bestaat
@@ -54,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // Hier wordt gekeken of elk veld is ingevuld voordat de code verder gaat
+    // Hier wordt gekeken of er geen foutmeldingen zijn
     if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
 
         // Query wordt gemaakt om de nieuwe gebruiker toe te voegen
@@ -72,7 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 //Doorgestuurd naar login en als de query niet uitgevoerd kan worden komt er een error
                 header("location: index.php");
             } else {
-                echo "Oops! Something went wrong. Please try again later.";
+                echo "Oops! Something went wrong with the query";
             }
             unset($stmt);
         }
