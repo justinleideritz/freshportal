@@ -16,7 +16,10 @@
 <?php
 require("dbcon.php");
 
+//ID van de record wordt in een variabel gezet
 $id = $_GET["id"];
+
+//Query om data op te halen via het ID
 $sqlUpdate = "SELECT * FROM employee WHERE EMP_ID=:employeeid";
 $stmt = $conn->prepare($sqlUpdate);
 $data = ['employeeid' => $id];

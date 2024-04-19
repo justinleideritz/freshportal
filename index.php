@@ -1,86 +1,85 @@
 <?php
 session_start();
 
-// Check if the user is already logged in, if yes then redirect him to welcome page
+// Hier wordt gekeken of er al was ingelogd om dan gelijk doorgestuurd te worden naar de tabel
 if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true) {
     header("location: employeetable.php");
     exit;
 }
 
-// Include config file
+
 require_once "dbcon.php";
 
-// Define variables and initialize with empty values
+// Lege variabelen die worden gevuld
 $username = $password = "";
 $username_err = $password_err = "";
 
-// Processing form data when form is submitted
+//Check om te kijken of the method "POST" is
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Check if username is empty
+    //Als de username leeg is dan krijg je een error anders wordt the username opgeslagen in de variabel $username
     if (empty(trim($_POST["username"]))) {
         $username_err = "Please enter username.";
     } else {
         $username = trim($_POST["username"]);
     }
 
-    // Check if password is empty
+    //Als de password leeg is dan krijg je een error anders wordt the password opgeslagen in de variabel $password
     if (empty(trim($_POST["password"]))) {
         $password_err = "Please enter your password.";
     } else {
         $password = trim($_POST["password"]);
     }
 
-    // Validate credentials
+    // Als de errors in de variabelen allebij leeg zijn wordt het ID, username en wachtwoord opgehaald
     if (empty($username_err) && empty($password_err)) {
         // Prepare a select statement
         $sql = "SELECT USE_ID, USE_Username, USE_Password FROM user WHERE USE_Username = :username";
 
+        //Hier wordt gekeken of the query is ophaald of niet zo ja dan gaat die verder
         if ($stmt = $conn->prepare($sql)) {
-            // Bind variables to the prepared statement as parameters
             $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
-
-            // Set parameters
             $param_username = $username;
 
-            // Attempt to execute the prepared statement
+            // De query wordt uitgevoerd met de meegegeven parameter als het bestaat
             if ($stmt->execute()) {
-                // Check if username exists, if yes then verify password
+
+                // Hier wordt gekeken of de gebruiker bestaat
                 if ($stmt->rowCount() == 1) {
                     if ($row = $stmt->fetch()) {
                         $id = $row["USE_ID"];
                         $username = $row["USE_Username"];
                         $hashed_password = $row["USE_Password"];
+
+                        // Hier wordt gekeken of the wachtwoorden overeenkomen
                         if (password_verify($password, $hashed_password)) {
                             // Password is correct, so start a new session
                             session_start();
 
-                            // Store data in session variables
+                            // Data wordt opgeslagen in sessie variabelen
                             $_SESSION["loggedin"] = true;
                             $_SESSION["id"] = $id;
                             $_SESSION["username"] = $username;
 
-                            // Redirect user to welcome page
+                            // Doorgestuurd naar de tabel
                             header("location: employeetable.php");
                         } else {
-                            // Display an error message if password is not valid
+                            // Als het wachtwoord fout is wordt de foutmelding weergegeven
                             $password_err = "The password you entered was not valid.";
                         }
                     }
                 } else {
-                    // Display an error message if username doesn't exist
+                    // Als de username niet bestaat wordt er een foutmelding weergeven
                     $username_err = "No account found with that username.";
                 }
+
+                // Foutmelding als er iets mis is gegaan hierboven
             } else {
                 echo "Oops! Something went wrong. Please try again later.";
             }
-
-            // Close statement
             unset($stmt);
         }
     }
-
-    // Close connection
     unset($conn);
 }
 ?>

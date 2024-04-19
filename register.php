@@ -1,28 +1,27 @@
 <?php
-// Start session
 session_start();
 
-// Include database connection file
 require_once 'dbcon.php';
 
-// Define variables and initialize with empty values
+// lege variabelen die later ingevuld kunnen worden
 $username = $password = $confirm_password = "";
 $username_err = $password_err = $confirm_password_err = "";
 
-// Processing form data when form is submitted
+// Check of the form method "POST" is
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Validate username
+    //Als de username leeg is dan krijg je een error anders wordt the username opgeslagen in de variabel $username anders word er gekeken of het bestaat
     if (empty(trim($_POST["username"]))) {
         $username_err = "Please enter a username.";
     } else {
         $sql = "SELECT USE_ID FROM user WHERE USE_Username = :username";
 
+        //De ingevulde username wordt in de query gezet
         if ($stmt = $conn->prepare($sql)) {
             $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
-
             $param_username = trim($_POST["username"]);
 
+            //Query wordt uitgevoerd en als er dezelfde username bestaat komt er een foutmelding
             if ($stmt->execute()) {
                 if ($stmt->rowCount() == 1) {
                     $username_err = "This username is already taken.";
@@ -36,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // Validate password
+    // Als er geen wachtwoord is ingevuld of wachtwoord is niet langer dan 6 character dan komt er een error
     if (empty(trim($_POST["password"]))) {
         $password_err = "Please enter a password.";
     } elseif (strlen(trim($_POST["password"])) < 6) {
@@ -45,7 +44,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = trim($_POST["password"]);
     }
 
-    // Validate confirm password
+    // Als er geen wachtwoord is ingevuld krijg je een error anders worden de 2 wachtwoorden vergeleken met elkaar
     if (empty(trim($_POST["confirm_password"]))) {
         $confirm_password_err = "Please confirm password.";
     } else {
@@ -55,35 +54,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // Check input errors before inserting into database
+    // Hier wordt gekeken of elk veld is ingevuld voordat de code verder gaat
     if (empty($username_err) && empty($password_err) && empty($confirm_password_err)) {
 
-        // Prepare an insert statement
+        // Query wordt gemaakt om de nieuwe gebruiker toe te voegen
         $sql = "INSERT INTO user (USE_Username, USE_Password) VALUES (:username, :password)";
 
         if ($stmt = $conn->prepare($sql)) {
-            // Bind variables to the prepared statement as parameters
             $stmt->bindParam(":username", $param_username, PDO::PARAM_STR);
             $stmt->bindParam(":password", $param_password, PDO::PARAM_STR);
 
-            // Set parameters
             $param_username = $username;
             $param_password = password_hash($password, PASSWORD_DEFAULT); // Creates a password hash
 
-            // Attempt to execute the prepared statement
+            //Query wordt uitgevoerd
             if ($stmt->execute()) {
-                // Redirect to login page
+                //Doorgestuurd naar login en als de query niet uitgevoerd kan worden komt er een error
                 header("location: index.php");
             } else {
                 echo "Oops! Something went wrong. Please try again later.";
             }
-
-            // Close statement
             unset($stmt);
         }
     }
-
-    // Close connection
     unset($conn);
 }
 ?>

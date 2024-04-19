@@ -12,13 +12,15 @@
 <?php
 session_start();
 
-// Check if the user is logged in, if not then redirect him to login page
+// Hier wordt gekeken of er al was ingelogd anders wordt je gestuurd naar het login scherm
 if (!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true) {
     header("location: index.php");
     exit;
 }
 
+//Het uur van de tijd wordt in een variabel gegooit om dan in een if else gebruikte te kunnen worden
 $current_hour = date('H');
+//Verschillende berichten worden weergegeven op basis van tijd
 if ($current_hour >= 5 && $current_hour < 12) {
     $greeting = "Good morning";
 } elseif ($current_hour >= 12 && $current_hour < 18) {
@@ -39,6 +41,8 @@ if ($current_hour >= 5 && $current_hour < 12) {
 </nav>
 <?php
 require("dbcon.php");
+
+//Tabel wordt gemaakt
 echo '<div class="table">';
 echo "<a id='create' href='create.php'>Add Employee</a>";
 echo "<table>";
@@ -48,6 +52,7 @@ echo "<th>ID</th> <th>First name</th> <th>Last name</th> <th>Email</th> <th>Phon
 echo "</tr>";
 echo "</thead>";
 echo "<tbody>";
+//Elk object in de array krijgt de key "row" om dan met de identifier de data te kunnen laten weergeven
 foreach ($sqlTable as $row) {
     echo "<tr>";
     echo "<td>" . $row["EMP_ID"] . "</td>";
@@ -58,6 +63,7 @@ foreach ($sqlTable as $row) {
     echo "<td>" . $row["EMP_Address"] . "</td>";
     echo "<td>" . $row["EMP_Birthdate"] . "</td>";
     echo "<td>" . $row["EMP_Description"] . "</td>";
+    //2 Anchor elementen voor het updaten en deleten van records
     echo "<td><a href='update.php?id=" . $row["EMP_ID"] . "'><i id='edit' class='fa-solid fa-pen-to-square'></i></a></td>";
     echo "<td><a href='delete.php?id=" . $row["EMP_ID"] . "'onclick='return confirmDelete()'><i id='delete' class='fa-solid fa-trash'></i></a></td>";
     echo "<td>" . $row["EMP_DateAdded"] . "</td>";
